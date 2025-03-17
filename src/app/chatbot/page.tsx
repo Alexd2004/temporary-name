@@ -351,7 +351,7 @@ export default function ChatBotPage() {
                   placeholder="Type your message..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none"
+                  className="flex-grow p-2 text-black border border-gray-300 rounded-lg focus:outline-none"
                   disabled={isLoading}
                 />
                 <button
