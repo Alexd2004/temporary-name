@@ -12,9 +12,9 @@ export default function AwarenessPage() {
           <Link href="/" className="text-gray-600 hover:text-green-500 transition-colors font-bold">
                   Home
                 </Link>
-                <Link href="/awareness" className="text-gray-700 hover:text-green-600 transition-colors font-bold">
+                {/* <Link href="/awareness" className="text-gray-700 hover:text-green-600 transition-colors font-bold">
                   Awareness
-                </Link>
+                </Link> */}
                 <Link href="/explore" className="text-gray-800 hover:text-green-700 transition-colors font-bold">
                   Explore
                 </Link>

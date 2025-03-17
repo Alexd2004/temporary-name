@@ -288,15 +288,15 @@ export default function ChatBotPage() {
             {/* Header attached to chat container */}
             <div className="px-3 py-2 flex flex-col justify-center items-center border-b">
               <div className="mb-2">
-                <h1 className="text-3xl font-bold text-green-800">EcoAware</h1>
+                <h1 className="text-3xl font-bold text-green-800">EcoMinded</h1>
               </div>
               <div className="flex space-x-8">
               <Link href="/" className="text-gray-600 hover:text-green-500 transition-colors font-bold">
                   Home
                 </Link>
-                <Link href="/awareness" className="text-gray-700 hover:text-green-600 transition-colors font-bold">
+                {/* <Link href="/awareness" className="text-gray-700 hover:text-green-600 transition-colors font-bold">
                   Awareness
-                </Link>
+                </Link> */}
                 <Link href="/explore" className="text-gray-800 hover:text-green-700 transition-colors font-bold">
                   Explore
                 </Link>
@@ -309,9 +309,9 @@ export default function ChatBotPage() {
             {/* Chat Conversation Area */}
             <div className="flex-1 overflow-y-auto px-6 pt-6">
               {!messageSent && (
-                <div className="mb-6 p-6 bg-white rounded-lg shadow-md text-center">
+                <div className="mb-6 p-6 bg-white rounded-lg shadow-lg text-center">
                   <p className="text-gray-600">
-                    EcoBot is here to help you with eco-friendly tips and sustainability advice. This demo is for informational purposes only.
+                  EcoBot is a demonstration tool provided by <strong className='text-black'>Nullus </strong> , offering general sustainability tips and eco-friendly advice. Please note that all content is for educational purposes only and should not be considered professional or personalized guidance. Always consult a qualified expert for advice tailored to your needs.
                   </p>
                 </div>
               )}

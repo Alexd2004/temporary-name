@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useRef, useMemo } from 'react'
+import { useEffect, useRef, useMemo} from 'react'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import Link from 'next/link'
+// import BarChartComponent from '../components/BarChart'; // Adjust the path as needed
 
 // Helper function to convert RGB to hex string
 function rgbToHex(r: number, g: number, b: number): string {
@@ -21,6 +22,22 @@ function rgbToHex(r: number, g: number, b: number): string {
 export default function WorldMapPage() {
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
+
+  // const [navInverted, setNavInverted] = useState(false);
+
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     // When scroll position is beyond the hero section (i.e. window.innerHeight)
+  //     if (window.scrollY > window.innerHeight) {
+  //       setNavInverted(true);
+  //     } else {
+  //       setNavInverted(false);
+  //     }
+  //   };
+
+  //   window.addEventListener('scroll', handleScroll);
+  //   return () => window.removeEventListener('scroll', handleScroll);
+  // }, []);
 
   // Emissions data: country name -> fossil emissions (in 1,000,000 tons per year)
   const emissionsData: { [country: string]: number } = {
@@ -41,16 +58,16 @@ export default function WorldMapPage() {
     'South Africa': 397.37,
     Australia: 373.62,
     Vietnam: 372.95,
-    Italy: 305.49,                // Italy, San Marino and Vatican City
+    Italy: 305.49,
     'United Kingdom': 302.10,
     Poland: 286.91,
     Malaysia: 283.32,
-    France: 282.43,               // France and Monaco
+    France: 282.43,
     Taiwan: 279.85,
     Thailand: 274.16,
     Egypt: 249.33,
     Kazakhstan: 239.87,
-    Spain: 217.26,                // Spain and Andorra
+    Spain: 217.26,
     'United Arab Emirates': 205.99,
     Pakistan: 200.51,
     Iraq: 192.91,
@@ -240,28 +257,28 @@ export default function WorldMapPage() {
   // Compute a color for each country using linear interpolation:
   // At 0 emissions: white (#ffffff)
   // At max emissions: dark red (#8B0000)
-  // For R: white is 255, dark red is 139 (255 - 116 = 139)
-  // For G and B: white is 255, dark red is 0
   const countryColors: { [country: string]: string } = {}
   for (const country in emissionsData) {
     const emission = emissionsData[country]
-    const adjustedRatio = Math.pow(emission / maxEmission, 0.2); // using square root to boost lower values
-    const r = Math.round(255 - 116 * adjustedRatio);
-    const g = Math.round(255 - 255 * adjustedRatio);
-    const b = Math.round(255 - 255 * adjustedRatio);
+    const adjustedRatio = Math.pow(emission / maxEmission, 0.2)
+    const r = Math.round(255 - 116 * adjustedRatio)
+    const g = Math.round(255 - 255 * adjustedRatio)
+    const b = Math.round(255 - 255 * adjustedRatio)
     
     countryColors[country] = rgbToHex(r, g, b)
   }
 
+  
+
   // Build a match expression for the fill color based on each country's "name" property
   const matchExpression = useMemo(() => {
-    const expr: (string | string[])[] = ['match', ['get', 'name']];
+    const expr: (string | string[])[] = ['match', ['get', 'name']]
     for (const country in countryColors) {
-      expr.push(country, countryColors[country]);
+      expr.push(country, countryColors[country])
     }
-    expr.push('#ffffff');
-    return expr as unknown as maplibregl.DataDrivenPropertyValueSpecification<string>;
-  }, [countryColors]);
+    expr.push('#ffffff')
+    return expr as unknown as maplibregl.DataDrivenPropertyValueSpecification<string>
+  }, [countryColors])
 
   useEffect(() => {
     if (!mapRef.current && mapContainer.current) {
@@ -281,7 +298,6 @@ export default function WorldMapPage() {
               type: 'fill',
               source: 'countries',
               paint: {
-                // Cast the matchExpression to the expected type to silence TypeScript errors
                 'fill-color': matchExpression as unknown as maplibregl.DataDrivenPropertyValueSpecification<string>,
                 'fill-opacity': 0.8
               }
@@ -315,38 +331,319 @@ export default function WorldMapPage() {
       }
     }
   }, [matchExpression])
-
   return (
-    <div className="flex flex-col h-screen">
-      <h1 className="text-center text-3xl font-bold py-4 bg-white">CO2 Emissions by Country</h1>
-      <nav className="bg-white shadow-md z-50">
-        <div className="container mx-auto px-6 py-2 flex justify-between items-center">
-          <h1 className="text-xl font-bold">World Map</h1>
+    <div className="flex flex-col bg-white">
+      {/* <nav className={`fixed top-0 left-0 w-full ${navInverted ? "bg-white" : "bg-transparent"} z-50`}>
+        <div className="container mx-auto px-6 py-4 flex justify-center items-center">
           <div className="flex space-x-8">
-            <Link href="/awareness" className="text-gray-600 hover:text-green-500 transition-colors">
+            <Link
+              href="/"
+              className={`${navInverted ? "text-black hover:text-[#2E7D32]" : "text-white hover:text-green-500"} transition-colors font-bold`}
+            >
+              Home
+            </Link>
+            <Link
+              href="/awareness"
+              className={`${navInverted ? "text-black hover:text-[#2E7D32]" : "text-white hover:text-green-600"} transition-colors font-bold`}
+            >
               Awareness
             </Link>
-            <Link href="/explore" className="text-gray-700 hover:text-green-600 transition-colors">
+            <Link
+              href="/explore"
+              className={`${navInverted ? "text-black hover:text-[#2E7D32]" : "text-white hover:text-green-700"} transition-colors font-bold`}
+            >
               Explore
             </Link>
-            <Link href="/leaderboard" className="text-gray-800 hover:text-green-700 transition-colors">
-              Leaderboard
-            </Link>
-            <Link href="/chatbot" className="text-gray-900 hover:text-green-800 transition-colors">
+            <Link
+              href="/chatbot"
+              className={`${navInverted ? "text-black hover:text-[#2E7D32]" : "text-white hover:text-green-800"} transition-colors font-bold`}
+            >
               EcoBot
             </Link>
           </div>
         </div>
+      </nav> */}
+        <nav className="fixed top-0 left-0 w-full bg-transparent z-50">
+        <div className="container mx-auto px-6 py-4 flex justify-center items-center">
+          <div className="flex space-x-8">
+          <Link href="/" className="text-green-700 hover:text-green-500 transition-colors font-bold">
+                  Home
+                </Link>
+                {/* <Link href="/awareness" className="text-gray-700 hover:text-green-600 transition-colors font-bold">
+                  Awareness
+                </Link> */}
+                <Link href="/explore" className="text-green-700 hover:text-green-700 transition-colors font-bold">
+                  Explore
+                </Link>
+                <Link href="/chatbot" className="text-green-700 hover:text-green-800 transition-colors font-bold">
+                  EcoBot
+                </Link>
+          </div>
+        </div>
       </nav>
-      <main className="flex-grow bg-[#4CAF50] flex flex-col items-center justify-center p-4">
-        <div className="w-4/5 h-3/5 bg-white rounded-lg shadow-lg overflow-hidden">
-          <div ref={mapContainer} id="map" className="w-full h-full" />
+
+      {/* Hero Section */}
+      <div className="relative h-screen flex items-center justify-center text-white">
+        <div
+          className="absolute inset-0 bg-cover"
+          style={{ 
+            backgroundImage: "url('/carbon3.jpg')",
+            backgroundPosition: 'center bottom'
+          }}
+        ></div>
+        <div className="relative z-10 text-center px-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            Explore Global Carbon Emissions
+          </h1>
+          <p className="text-lg md:text-xl mb-8">
+            Discover how countries contribute to global CO2 emissions and learn how we can work together for a sustainable future.
+          </p>
+          <button
+            className="bg-[#2E7D32] text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+            onClick={() => {
+              document.getElementById('map-section')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            Explore the Map
+          </button>
         </div>
-        <div className="w-4/5 mt-4 bg-white p-4 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-bold mb-2">Additional Content</h2>
-          <p>This is a new section below the map. You can add any content you want here.</p>
+      </div>
+
+      {/* Map, Legend, and Explanatory Text Section */}
+      <main className="flex-grow flex flex-col items-center justify-center pt-20" id="map-section">
+      <div
+  className="w-4/5  shadow-lg p-4"
+  style={{ border: '8px double #8B4513' }}
+>
+  <div className="flex">
+    {/* Left Column: Map and Legend */}
+    <div className="w-3/5 " style={{ border: '8px double rgb(122, 60, 9)' }}>
+      {/* Map Container */}
+      <div className="bg-white overflow-hidden"
+        style={{ borderBottom: '2px solid rgb(122, 60, 9)' }}
+      >
+        <div ref={mapContainer} id="map" className="w-full h-[400px]" />
+      </div>
+
+      {/* Legend (attached directly below the map) */}
+      <div className="bg-white p-4 rounded-b-lg">
+        <h3 className="text-center font-bold text-[#2E7D32] mb-2">Legend</h3>
+        <div
+          className="h-4 w-full"
+          style={{ background: 'linear-gradient(to right, #ffffff, #8B0000)' }}
+        ></div>
+        <div className="flex justify-between text-sm mt-1">
+          <span className="text-[#2E7D32]">Lower Emissions</span>
+          <span className="text-[#2E7D32]">Higher Emissions</span>
         </div>
+      </div>
+    </div>
+
+    <div className="w-2/5 bg-white p-6">
+  <h2 className="text-2xl font-bold text-[#2E7D32] mb-4">
+    What Does This Map Mean?
+  </h2>
+  <p className="text-black mb-2">
+    This map visualizes the total carbon emissions of countries worldwide. The color gradient represents the intensity of emissions, with lighter shades indicating lower emissions and darker red hues representing higher emissions.
+  </p>
+  <p className="text-black mb-2">
+    By exploring this map, you can see which countries are the largest contributors to global CO2 emissions and understand the scale of their impact on climate change.
+  </p>
+  <p className="text-black mb-2">
+    Whether you&apos;re an environmental researcher, policy maker, or simply interested in the global impact of carbon emissions, this tool offers insights that can help inform better decisions and strategies.
+  </p>
+  <p className="text-black">
+    Use this tool to gain a deeper understanding of global emission trends and learn how we can collectively work toward a more sustainable future by adopting innovative and eco-friendly practices.
+  </p>
+</div>
+</div>
+</div>
+
+
+        {/* Top 10 Contributors and Bar Chart Section 
+        <div className="w-full mt-8 bg-[#2E7D32] p-4 rounded-lg shadow-lg">
+          <div className='w-3/5 mx-auto'>
+          <h2 className="text-2xl text-center font-bold text-white mt-5 mb-20">
+            Top 10 Contributors to Global CO2 Emissions
+          </h2>
+          <div className="flex">
+            {/* Top 10 Contributors List 
+            <div className="w-1/2 pr-4">
+              <ul className="space-y-2">
+                {Object.entries(emissionsData)
+                  .sort((a, b) => b[1] - a[1])
+                  .slice(0, 10)
+                  .map(([country, emissions]) => (
+                    <li key={country} className="text-sm text-white">
+                      {country}: <span className="font-bold">{emissions.toFixed(2)}M tons</span>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+
+            <div className="w-4/5 mb-4">
+              <h4 className="text-lg font-bold text-white ">Emissions by Country</h4>
+              <div className="w-full h-64">
+                <BarChartComponent data={Object.entries(emissionsData).slice(0, 10)} />
+              </div>
+            </div>
+          </div>
+
+          </div>
+          
+        </div>
+        */}
+        {/* Section discussing contributors and solutions */}
+        <section className="w-full mt-20 mb-20 bg-[#2E7D32] p-10 rounded-lg shadow-lg text-center">
+  <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">
+    A Planet in Peril: The Role of Top Emitters
+  </h2>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4 mt-10">
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <h3 className="text-2xl font-semibold text-[#2E7D32] mb-4">
+        The Biggest Contributors
+      </h3>
+      <p className="text-black ">
+        The story of climate change is one of imbalance. A handful of nations bear the greatest responsibility for global carbon emissions. <strong>China</strong>, emitting <strong>13,259.64 million tons</strong> annually, stands at the forefront, followed by the <strong>United States</strong> (4,682.04 million tons) and <strong>India</strong> (2,955.18 million tons). These countries, along with <strong>Russia</strong>, <strong>Japan</strong>, and <strong>Iran</strong>, are the primary drivers of the climate crisis.
+      </p>
+    </div>
+
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <h3 className="text-2xl font-semibold text-[#2E7D32] mb-4">
+        The Path to Change
+      </h3>
+      <p className="text-black  ">
+        Their reliance on fossil fuels, expansive industrial sectors, and growing transportation networks have created a legacy of environmental harm. Yet, within this challenge lies an opportunity. By embracing renewable energy, advancing green technologies, and adopting sustainable practices, these nations can transform from contributors to champions of change.
+      </p>
+    </div>
+
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <h3 className="text-2xl font-semibold text-[#2E7D32] mb-4">
+        The Power of Collective Action
+      </h3>
+      <p className="text-black  ">
+        But the power to shape the future doesn&apos;t rest solely with governments and industries. It lies with each of us. By making conscious choices—supporting clean energy, reducing waste, and demanding accountability—we can collectively rewrite this story. Together, we can turn the tide. Let&apos;s work hand in hand to build a world where progress and sustainability go hand in hand.
+      </p>
+    </div>
+  </div>
+</section>
+<section id="innovation" className="bg-white ">
+  <div className="container mx-auto px-6">
+    <h2 className="text-4xl font-bold text-[#2E7D32] text-center mb-8">
+      Innovative Solutions for a Sustainable Future
+    </h2>
+    <p className="text-lg text-black mb-6 text-center">
+      Discover groundbreaking strategies that are transforming our approach to sustainability. Our innovative solutions integrate advanced technologies with eco-friendly practices to build a cleaner, more resilient future.
+    </p>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-8">
+      {/* Innovation Box 1: Renewable Energy */}
+      <div className="bg-[#F0F0F0] p-6 rounded-lg shadow-lg text-center">
+        <h3 className="text-xl font-semibold text-[#2E7D32] mb-4">
+          Renewable Energy
+        </h3>
+        <p className="text-black mb-4">
+          Renewable energy harnesses the power of natural resources such as sunlight, wind, and water. Advances in photovoltaic technology, wind turbine design, and hydroelectric engineering have significantly improved efficiency and output. With increasing investment and research, renewable energy systems are now capable of powering entire cities and reducing dependency on fossil fuels.
+        </p>
+        <p className="text-black">
+          This approach not only minimizes greenhouse gas emissions but also creates new job opportunities and fosters economic growth through emerging green industries.
+        </p>
+      </div>
+      {/* Innovation Box 2: Carbon Capture & Storage */}
+      <div className="bg-[#F0F0F0] p-6 rounded-lg shadow-lg text-center">
+        <h3 className="text-xl font-semibold text-[#2E7D32] mb-4">
+          Carbon Capture &amp; Storage
+        </h3>
+        <p className="text-black mb-4">
+          Carbon Capture and Storage (CCS) is a technology designed to trap CO2 emissions from industrial processes before they reach the atmosphere. This method involves capturing carbon dioxide, compressing it, and then transporting it to be stored in secure geological formations deep underground.
+        </p>
+        <p className="text-black">
+          Beyond reducing emissions, CCS offers a transitional solution for heavy industries, enabling them to operate more sustainably while new technologies continue to evolve.
+        </p>
+      </div>
+      {/* Innovation Box 3: Energy Storage Systems */}
+      <div className="bg-[#F0F0F0] p-6 rounded-lg shadow-lg text-center">
+        <h3 className="text-xl font-semibold text-[#2E7D32] mb-4">
+          Energy Storage Systems
+        </h3>
+        <p className="text-black mb-4">
+          Energy Storage Systems are crucial for balancing energy supply and demand, especially as renewable energy sources become more prevalent. Advanced battery technologies, along with other storage methods like pumped hydro and thermal storage, allow excess energy to be captured and used when renewable sources are intermittent.
+        </p>
+        <p className="text-black">
+          These systems not only stabilize the grid but also pave the way for smart energy management, ensuring a reliable power supply while reducing energy waste.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer className="bg-[#2E7D32] w-full mt-10 text-white py-10">
+  <div className="container mx-auto px-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* Nullus Information */}
+      <div>
+        <h3 className="text-xl font-bold mb-4">Nullus</h3>
+        <p className="text-gray-200 mb-4">
+          A group of passionate university students striving for a greener, more sustainable future.
+        </p>
+        <Link href="https://www.nullus.ca/">
+          <button className="bg-white text-[#2E7D32] px-4 py-2 rounded-lg hover:bg-[#4CAF50] transition-colors">
+            Learn More About Us
+          </button>
+        </Link>
+      </div>
+
+      {/* Quick Links */}
+      <div>
+        <h3 className="text-xl font-bold mb-4">Quick Links</h3>
+        <ul className="space-y-2">
+          <li>
+            <Link href="/" className="text-gray-200 hover:text-white transition-colors">Home</Link>
+          </li>
+          {/* <li>
+            <Link href="/explore" className="text-gray-200 hover:text-white transition-colors">Awareness</Link>
+          </li> */}
+          <li>
+            <Link href="/leaderboard" className="text-gray-200 hover:text-white transition-colors">Explore</Link>
+          </li>
+          <li>
+            <Link href="/chatbot" className="text-gray-200 hover:text-white transition-colors">EcoBot</Link>
+          </li>
+        </ul>
+      </div>
+
+      {/* Social Media */}
+      <div >
+        <h3 className="text-xl font-bold mb-4">Follow Us</h3>
+        <div className="flex space-x-4">
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:text-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M24 4.557a9.83 9.83 0 01-2.828.775 4.932 4.932 0 002.165-2.724 9.864 9.864 0 01-3.127 1.195 4.916 4.916 0 00-8.384 4.482A13.948 13.948 0 011.671 3.149a4.908 4.908 0 001.523 6.574 4.905 4.905 0 01-2.229-.616v.061a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.934 4.934 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.925 13.925 0 007.547 2.209c9.054 0 14.002-7.496 14.002-14 0-.213-.005-.425-.015-.636A10.017 10.017 0 0024 4.557z" />
+            </svg>
+          </a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:text-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.784-1.75-1.75s.784-1.75 1.75-1.75 1.75.784 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+            </svg>
+          </a>
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:text-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.768.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {/* Copyright Notice */}
+    <div className="border-t border-gray-600 mt-8 pt-8 text-center text-gray-300">
+      <p>&copy; {new Date().getFullYear()} Nullus. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+
+
       </main>
     </div>
-  )
+  );
 }
